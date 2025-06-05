@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The People Arrive — Civic Memory Protocol</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --clay: #b85c4c;
+      --soil: #4f3d2c;
+      --chalk: #faf9f7;
+      --worn-blue: #3b5364;
+    }
+    body {
+      background: url('./img/fiber-paper.png') repeat;
+      color: var(--soil);
+      font-family: Georgia, 'Times New Roman', serif;
+      line-height: 1.7;
+    }
+    h1, h2, h3 {
+      font-family: Georgia, 'Times New Roman', serif;
+    }
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      font-size: 0.875rem;
+      letter-spacing: 0.05em;
+    }
+    .btn-primary {
+      background-color: var(--clay);
+      color: var(--chalk);
+    }
+    .btn-primary:hover {
+      background-color: var(--soil);
+    }
+    .btn-outline {
+      border: 2px solid var(--clay);
+      color: var(--clay);
+    }
+    .btn-outline:hover {
+      border-color: var(--soil);
+      color: var(--soil);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <section class="relative text-center py-24 px-6" style="background-color: var(--worn-blue); color: var(--chalk);">
+    <img src="./img/folding-chairs-hero.svg" alt="Chairs" class="w-full max-h-96 object-cover opacity-70 mix-blend-multiply mb-6">
+    <h1 class="text-4xl sm:text-5xl font-semibold">Story is protocol. You may proceed.</h1>
+    <p class="mt-4 text-lg max-w-xl mx-auto">A civic-myth experiment in collective memory.</p>
+    <div class="mt-8 flex flex-wrap justify-center gap-4">
+      <a href="https://thepeoplearrive.substack.com" target="_blank" class="btn btn-primary">Join the Dispatch</a>
+      <a href="https://your-teachable-product-link" target="_blank" class="btn btn-outline">Buy the Digital Record</a>
+    </div>
+  </section>
+
+  <!-- Arrival Transmission -->
+  <section class="max-w-3xl mx-auto px-6 py-20">
+    <h2 class="text-2xl font-semibold mb-4">Arrival Transmission</h2>
+    <p>
+      In the aftermath of forgotten cities, we gather—folding chairs in a broken circle, seed packets cradled like futures.
+      <br><br>
+      Each tally stroke we chalk on battered ledgers anchors the next story.
+      <strong>What trace will <em>you</em> leave?</strong>
+    </p>
+  </section>
+
+  <!-- Vital Links -->
+  <section class="bg-[var(--worn-blue)]/10 py-16 px-6">
+    <div class="max-w-4xl mx-auto grid gap-8 sm:grid-cols-3">
+      <div>
+        <h3 class="font-semibold text-lg mb-1">Instagram</h3>
+        <p class="text-sm">Visual signals & glitch fragments.</p>
+        <a href="https://instagram.com/thepeoplearrive" target="_blank" class="underline text-[var(--clay)]">Open Link</a>
+      </div>
+      <div>
+        <h3 class="font-semibold text-lg mb-1">Dispatch Archive</h3>
+        <p class="text-sm">Civic ritual logs from the field.</p>
+        <a href="https://thepeoplearrive.substack.com" target="_blank" class="underline text-[var(--clay)]">Open Link</a>
+      </div>
+      <div>
+        <h3 class="font-semibold text-lg mb-1">Send Your Memory</h3>
+        <p class="text-sm">Transmit artifact to Mot.</p>
+        <a href="mailto:mot@thepeoplearrive.com" class="underline text-[var(--clay)]">Send Email</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Signal Custodians -->
+  <section class="max-w-4xl mx-auto px-6 py-20">
+    <h2 class="text-2xl font-semibold mb-8">Signal Custodians</h2>
+    <div class="grid gap-10 sm:grid-cols-2">
+      <div class="bg-[var(--chalk)] p-6 border-l-4 border-[var(--clay)] shadow-sm">
+        <h3 class="text-xl font-semibold">Mot Snilloc</h3>
+        <p class="italic text-sm mb-2">Civic Mythmaker | Memory Technician</p>
+        <p class="text-sm">“Story is protocol. You may proceed.”</p>
+        <a href="mailto:mot@thepeoplearrive.com" class="underline mt-2 inline-block text-sm">mot@thepeoplearrive.com</a>
+      </div>
+      <div class="bg-[var(--chalk)] p-6 border-l-4 border-[var(--worn-blue)] shadow-sm">
+        <h3 class="text-xl font-semibold">BobbyX</h3>
+        <p class="italic text-sm mb-2">Press & Licensing Desk</p>
+        <p class="text-sm">“Signal Class 1: Direct Transmission.”</p>
+        <a href="mailto:press@thepeoplearrive.com" class="underline mt-2 inline-block text-sm">press@thepeoplearrive.com</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ritual Prompt -->
+  <section class="text-center py-20 bg-[var(--clay)]/10">
+    <h2 class="text-xl font-semibold mb-4">Ritual Prompt</h2>
+    <p>
+      Sketch the moment you first felt a city breathe again.<br>
+      Share it via <a href="mailto:bobbyx@thepeoplearrive.com" class="underline text-[var(--clay)]">bobbyx@thepeoplearrive.com</a>.
+    </p>
+  </section>
+
+  <footer class="text-center py-6 text-sm">
+    &copy; <span id="year"></span> The People Arrive — All rights reserved.
+  </footer>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
