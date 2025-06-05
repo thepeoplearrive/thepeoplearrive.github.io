@@ -34,45 +34,33 @@
       text-transform: uppercase;
       font-size: 0.875rem;
       letter-spacing: 0.05em;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
-.btn-primary {
-  background-color: #f97316; /* vivid clay-orange */
-  color: #fff;
-}
-.btn-primary:hover {
-  background-color: #c2410c;
-}
-.btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 9999px;
-  text-transform: uppercase;
-  font-size: 0.875rem;
-  letter-spacing: 0.05em;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-}
-
-
+    .btn-primary {
+      background-color: #f97316;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background-color: #c2410c;
+    }
   </style>
 </head>
 <body>
-  <main>
+  <main role="main">
 
   <!-- Hero -->
-<section class="relative text-center bg-[var(--worn-blue)] h-[90vh] overflow-hidden">
-  <img src="./img/tpa-title-burst.webp" alt="The People Arrive Title Bloom Banner"
-       class="absolute inset-0 w-full h-full object-contain z-0"
+  <section class="relative text-center bg-[var(--worn-blue)] h-[90vh] overflow-hidden" aria-label="Hero">
+    <img src="./img/tpa-title-burst.webp" loading="eager" alt="Title bloom artwork: The People Arrive" class="absolute inset-0 w-full h-full object-contain z-0 pointer-events-none">
 
-
-  <div class="absolute inset-0 z-10 flex flex-col items-center justify-end text-white px-4 pb-16 bg-black/5">
-    <div class="flex justify-center">
-      <a href="https://thepeoplearrive.substack.com" target="_blank" class="btn btn-primary shadow-lg">Join the Dispatch</a>
+    <div class="absolute inset-0 z-10 flex flex-col items-center justify-end text-white px-4 pt-12 pb-16 bg-black/5">
+      <div class="flex justify-center">
+        <a href="https://thepeoplearrive.substack.com" target="_blank" class="btn btn-primary shadow-lg transition-opacity duration-500 opacity-90 hover:opacity-100">Join the Dispatch</a>
+      </div>
     </div>
-  </div>
-</section>
-
+  </section>
 
   <!-- Arrival Transmission -->
-  <section class="max-w-3xl mx-auto px-6 py-20">
+  <section class="max-w-3xl mx-auto px-6 py-20" aria-label="Arrival Transmission">
     <h2 class="text-2xl font-semibold mb-4">Arrival Transmission</h2>
     <p>
       In the aftermath of forgotten cities, we gather—folding chairs in a broken circle, seed packets cradled like futures.
@@ -82,12 +70,13 @@
     </p>
   </section>
 
-  <section class="text-center py-12 bg-black text-green-200 font-mono">
-    <img src="./img/dispatch-001-boot-sequence.webp" loading="lazy" alt="Dispatch 001: Boot Sequence" class="mx-auto">
+  <!-- Dispatch Artifact -->
+  <section class="text-center py-12 bg-black text-green-200 font-mono" aria-label="Dispatch Artifact">
+    <img src="./img/dispatch-001-boot-sequence.webp" loading="lazy" alt="Glitch signal from Dispatch 001: Boot Sequence" class="mx-auto">
   </section>
 
   <!-- Vital Links -->
-  <section class="bg-[var(--worn-blue)]/10 py-16 px-6">
+  <section class="bg-[var(--worn-blue)]/10 py-16 px-6" aria-label="Vital Links">
     <div class="max-w-4xl mx-auto grid gap-8 sm:grid-cols-3">
       <div>
         <h3 class="font-semibold text-lg mb-1">Instagram</h3>
@@ -108,8 +97,8 @@
   </section>
 
   <!-- Signal Custodians -->
-  <section class="max-w-4xl mx-auto px-6 py-20">
-    <img src="./img/tpa-civic-myth-banner.webp" loading="lazy" alt="The People Arrive — A Civic Myth" class="mx-auto mb-12 max-w-md">
+  <section class="max-w-4xl mx-auto px-6 py-20" aria-label="Signal Custodians">
+    <img src="./img/tpa-civic-myth-banner.webp" loading="lazy" alt="Civic Myth Banner for The People Arrive" class="mx-auto mb-12 max-w-md">
     <h2 class="text-2xl font-semibold mb-8">Signal Custodians</h2>
     <div class="grid gap-10 sm:grid-cols-2">
       <div class="bg-[var(--chalk)] p-6 border-l-4 border-[var(--clay)] shadow-sm">
@@ -128,13 +117,13 @@
   </section>
 
   <!-- Ritual Prompt -->
-  <section class="text-center py-20 bg-[var(--clay)]/10">
-    <img src="./img/ritual-handshake-prompt.webp" loading="lazy" alt="Ritual Prompt — Show up for somebody who can't pay you back" class="mx-auto max-w-sm">
+  <section class="text-center py-20 bg-[var(--clay)]/10" aria-label="Ritual Prompt">
+    <img src="./img/ritual-handshake-prompt.webp" loading="lazy" alt="Prompt: Show up for somebody who can't pay you back" class="mx-auto max-w-sm">
   </section>
 
   <!-- BobbyX Substack Promo -->
-  <section class="text-center py-16">
-    <img src="./img/bobbyx-substack-promo.webp" loading="lazy" alt="BobbyX on Substack — People Powered Imagination" class="mx-auto my-8 max-w-lg">
+  <section class="text-center py-16" aria-label="BobbyX Substack">
+    <img src="./img/bobbyx-substack-promo.webp" loading="lazy" alt="Substack Promo: BobbyX — People Powered Imagination" class="mx-auto my-8 max-w-lg">
   </section>
     
   </main>
@@ -148,5 +137,6 @@
   </script>
 </body>
 </html>
+
 
 
