@@ -12,38 +12,54 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" type="image/webp" href="./img/ritual-kitchen-signal.webp">
   <link rel="icon" type="image/png" href="./img/ritual-kitchen-signal.png">  
-  <style>
-    :root {
-      --clay: #b85c4c;
-      --soil: #4f3d2c;
-      --chalk: #faf9f7;
-      --worn-blue: #3b5364;
-    }
-    body {
-      background: url('./img/fiber-paper.png') repeat;
-      color: var(--soil);
-      font-family: Georgia, 'Times New Roman', serif;
-      line-height: 1.7;
-    }
-    h1, h2, h3 {
-      font-family: Georgia, 'Times New Roman', serif;
-    }
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border-radius: 9999px;
-      text-transform: uppercase;
-      font-size: 0.875rem;
-      letter-spacing: 0.05em;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    }
-    .btn-primary {
-      background-color: #f97316;
-      color: #fff;
-    }
-    .btn-primary:hover {
-      background-color: #c2410c;
-    }
-  </style>
+<style>
+  :root {
+    --clay: #b85c4c;
+    --soil: #4f3d2c;
+    --chalk: #faf9f7;
+    --worn-blue: #3b5364;
+  }
+
+  body {
+    background: url('./img/fiber-paper.png') repeat;
+    color: var(--soil);
+    font-family: Georgia, 'Times New Roman', serif;
+    line-height: 1.7;
+  }
+
+  h1, h2, h3 {
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  .btn-primary {
+    background-color: #f97316;
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background-color: #c2410c;
+  }
+
+  /* ✨ BobbyX Glitch Fade */
+  .fade-in {
+    opacity: 0;
+    animation: fadeIn ease 2s forwards;
+    animation-delay: 0.5s;
+  }
+
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+</style>
 </head>
 <body>
   <main role="main">
@@ -75,7 +91,7 @@
     <div class="bg-white border border-[var(--clay)] shadow-md p-6 text-center rounded">
       <h3 class="text-xl font-semibold mb-3">Stay in the Loop</h3>
       <p class="text-sm mb-5 text-gray-700">
-        Receive dispatches, rituals, and signal fragments direct from the field. No spam. Just memory.
+      Receive dispatches, rituals, and signal fragments direct from the field. No spam. Just memory.
       </p>
       <iframe 
         src="https://thepeoplearrive.substack.com/embed" 
@@ -85,6 +101,9 @@
         scrolling="no" 
         class="w-full max-w-xl mx-auto">
       </iframe>
+
+      <p class="text-xs italic text-gray-500 mt-3 fade-in">[bobbyx.log: user_persistence = verified]</p>
+      
     </div>
   </section>
 
