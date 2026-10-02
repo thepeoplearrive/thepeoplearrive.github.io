@@ -1,0 +1,38 @@
+name: Enforce HTTPS (one-time, owner-requested)
+
+# Temporary: runs once on push to this branch only. The branch is deleted afterwards
+# and this file never reaches main. Owner request 2026-10-02: "Enable GitHub Pages
+# Enforce HTTPS." Acts only if the custom domain is www.thepeoplearrive.com and its
+# certificate is approved and covers that domain.
+on:
+  push:
+    branches: [claude/enforce-https-once]
+
+permissions:
+  pages: write
+
+jobs:
+  enforce:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check certificate, enforce HTTPS, verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -u
+          H=(-H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28')
+          show() { python3 -c 'import json,sys; d=json.load(sys.stdin); c=d.get("https_certificate") or {}; print(json.dumps({"cname":d.get("cname"),"https_enforced":d.get("https_enforced"),"cert_state":c.get("state"),"cert_domains":c.get("domains"),"html_url":d.get("html_url")}))'; }
+          curl -sS "${H[@]}" "https://api.github.com/repos/$REPO/pages" > before.json
+          echo "BEFORE: $(show < before.json)"
+          ready=$(python3 -c 'import json; d=json.load(open("before.json")); c=d.get("https_certificate") or {}; print("yes" if d.get("cname")=="www.thepeoplearrive.com" and c.get("state")=="approved" and "www.thepeoplearrive.com" in (c.get("domains") or []) else "no")')
+          echo "certificate ready: $ready"
+          if [ "$ready" != yes ]; then echo "Not enforcing: certificate not ready for the custom domain."; exit 1; fi
+          code=$(curl -sS -o put.json -w '%{http_code}' -X PUT "${H[@]}" "https://api.github.com/repos/$REPO/pages" -d '{"https_enforced":true}')
+          echo "PUT https_enforced=true -> HTTP $code"; cat put.json; echo
+          curl -sS "${H[@]}" "https://api.github.com/repos/$REPO/pages" > after.json
+          echo "AFTER: $(show < after.json)"
+          echo "--- redirect probe (may lag a few minutes) ---"
+          curl -sS -o /dev/null -w 'http://www.thepeoplearrive.com/start-reading/?q=1 -> %{http_code} %{redirect_url}\n' 'http://www.thepeoplearrive.com/start-reading/?q=1' || true
+          curl -sS -o /dev/null -w 'https://thepeoplearrive.github.io/robots.txt -> %{http_code} %{redirect_url}\n' 'https://thepeoplearrive.github.io/robots.txt' || true
+          [ "$code" = 204 ] || [ "$code" = 200 ]
