@@ -25,7 +25,7 @@ const pages = pageArgs.length ? pageArgs : ['/'];
 const siteRoot = path.resolve(root);
 fs.mkdirSync(outDir, { recursive: true });
 
-const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.webp': 'image/webp', '.png': 'image/png', '.svg': 'image/svg+xml', '.xml': 'application/xml', '.txt': 'text/plain', '.ico': 'image/x-icon' };
+const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.png': 'image/png', '.svg': 'image/svg+xml', '.xml': 'application/xml', '.txt': 'text/plain', '.ico': 'image/x-icon' };
 
 // Mimics GitHub Pages: /dir/ -> /dir/index.html, unknown path -> /404.html with status 404.
 function serve() {
@@ -98,6 +98,11 @@ async function inspect(page) {
       }).map(h => h.tagName + ': ' + h.textContent.trim()),
       h1FontPx: (() => { const h = document.querySelector('h1'); return h ? parseFloat(getComputedStyle(h).fontSize) : null; })(),
       bodyFontPx: parseFloat(getComputedStyle(document.body).fontSize),
+      // Compare every element that paints its own text, not only the root font.
+      textFonts: [...document.querySelectorAll('body *')].filter(el =>
+        !['SCRIPT', 'STYLE'].includes(el.tagName) &&
+        [...el.childNodes].some(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim())
+      ).map(el => ({ text: el.textContent.trim().slice(0, 80), px: parseFloat(getComputedStyle(el).fontSize) })),
     };
   });
 }
@@ -140,8 +145,9 @@ async function keyboardWalk(page, maxTabs = 40) {
 
 const server = await serve();
 const base = `http://127.0.0.1:${server.address().port}`;
-const browser = await chromium.launch({ executablePath: fs.existsSync('/opt/pw-browsers/chromium') ? undefined : undefined });
-const report = { generated: new Date().toISOString(), siteRoot, pages: {} };
+const browser = await chromium.launch({ executablePath: process.env.BROWSER_EXECUTABLE_PATH || undefined });
+const report = { generated: new Date().toISOString(), siteRoot, browser: browser.version(),
+  scope: 'Offline local reproduction; root-font scaling and reduced-viewport/DPR approximation, not real browser zoom or live embed verification.', pages: {} };
 
 for (const p of pages) {
   const slug = p === '/' ? 'home' : p.replace(/^\/|\/$/g, '').replace(/[^a-z0-9]+/gi, '-');
@@ -189,7 +195,7 @@ for (const p of pages) {
       const key = `${vp.name}${zoom === 200 ? '-text200' : ''}`;
       entry.views[key] = await inspect(page);
       await page.screenshot({ path: path.join(outDir, `${slug}--${key}.png`), fullPage: true });
-      if (zoom === 100 && vp.name !== 'mobile-320') entry.keyboard[vp.name] = await keyboardWalk(page);
+      entry.keyboard[key] = await keyboardWalk(page);
       if (zoom === 100 && vp.name === 'desktop-1366') {
         // First focus stop (skip link) screenshot.
         await page.evaluate(() => { document.activeElement && document.activeElement.blur(); window.scrollTo({ top: 0, behavior: 'instant' }); });
@@ -199,13 +205,14 @@ for (const p of pages) {
       await ctx.close();
     }
   }
-  // 200% browser page zoom at 1366 px equals a 683 px CSS viewport at DPR 2.
+  // Reduced viewport/DPR approximation of 200% desktop page zoom, not real browser zoom.
   {
     const ctx = await browser.newContext({ viewport: { width: 683, height: 450 }, deviceScaleFactor: 2 });
     const page = await ctx.newPage();
     await page.route('**/*', route => route.request().url().startsWith(base) ? route.continue() : route.abort());
     await page.goto(base + p, { waitUntil: 'load' });
     entry.views['desktop-1366-pagezoom200'] = await inspect(page);
+    entry.keyboard['desktop-1366-pagezoom200'] = await keyboardWalk(page);
     await page.screenshot({ path: path.join(outDir, `${slug}--desktop-1366-pagezoom200.png`), fullPage: true });
     await ctx.close();
   }
@@ -218,6 +225,31 @@ for (const p of pages) {
       const moving = [...document.querySelectorAll('*')].filter(e => { const cs = getComputedStyle(e); return (parseFloat(cs.animationDuration) > 0.01 && cs.animationName !== 'none') || parseFloat(cs.transitionDuration) > 0.01; }).map(e => e.tagName.toLowerCase() + (e.className ? '.' + String(e.className).split(' ')[0] : ''));
       return { scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior, animatedOrTransitioning: moving.slice(0, 10) };
     });
+    await ctx.close();
+  }
+  // A controlled cross-origin fixture tests only our outer-frame focus handler.
+  // It is not evidence about Substack's real controls, clipping or accessibility.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const page = await ctx.newPage();
+    await page.route('**/*', route => {
+      const u = route.request().url();
+      if (u.startsWith(base)) return route.continue();
+      if (u === 'https://thepeoplearrive.substack.com/embed') return route.fulfill({
+        contentType: 'text/html', body: '<!doctype html><label>Email <input type="email"></label><button>Fixture only</button>' });
+      return route.abort();
+    });
+    await page.goto(base + p, { waitUntil: 'load' });
+    if (await page.locator('iframe.signup').count()) {
+      await page.locator('iframe.signup').scrollIntoViewIfNeeded();
+      await page.frameLocator('iframe.signup').locator('input').focus();
+      await page.waitForTimeout(50);
+      const ringInside = await page.locator('iframe.signup').evaluate(f => f.classList.contains('has-focus'));
+      await page.locator('.fallback a').focus();
+      await page.waitForTimeout(50);
+      const ringOutside = await page.locator('iframe.signup').evaluate(f => f.classList.contains('has-focus'));
+      entry.embedFocusFixture = { ringInside, clearedOutside: !ringOutside, scope: 'Synthetic form, outer-frame handler only' };
+    }
     await ctx.close();
   }
   report.pages[p] = entry;
@@ -249,12 +281,21 @@ for (const [p, e] of Object.entries(report.pages)) {
   for (const [k, v] of Object.entries(e.views)) {
     if (v.horizontalOverflow) failures.push(`${p} ${k}: horizontal overflow ${v.scrollWidth}/${v.clientWidth}`);
     if (v.headingWordBreaks.length) failures.push(`${p} ${k}: heading word breaks ${v.headingWordBreaks.join(' | ')}`);
+    if (k.endsWith('-text200')) {
+      const normal = e.views[k.replace('-text200', '')].textFonts;
+      for (let i = 0; i < normal.length; i++) {
+        const enlarged = v.textFonts[i];
+        if (!enlarged || enlarged.text !== normal[i].text || enlarged.px < normal[i].px * 1.98)
+          failures.push(`${p} ${k}: text did not double: "${normal[i].text}" (${normal[i].px} -> ${enlarged && enlarged.px}px)`);
+      }
+    }
   }
   for (const [k, stops] of Object.entries(e.keyboard)) {
     for (const s of stops) if (s.focusContrast !== null && s.focusContrast < 3) failures.push(`${p} ${k}: weak focus on "${s.text}" (${s.focusContrast})`);
     if (stops.length && stops[0].href !== '#main') failures.push(`${p} ${k}: first focus stop is not the skip link`);
   }
   if (e.reducedMotion.scrollBehavior !== 'auto' || e.reducedMotion.animatedOrTransitioning.length) failures.push(`${p}: motion under prefers-reduced-motion`);
+  if (e.embedFocusFixture && (!e.embedFocusFixture.ringInside || !e.embedFocusFixture.clearedOutside)) failures.push(`${p}: synthetic embed focus handler failed`);
 }
 if (failures.length) { console.error('\nFAILURES:\n' + failures.join('\n')); process.exit(1); }
 console.log('\nRendered audit: no failures.');

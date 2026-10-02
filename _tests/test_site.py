@@ -31,8 +31,13 @@ HERO_PHRASE = 'Story is protocol.'
 THREE_BODY = ('The Adventures taught it. The Playbook holds it. '
               'The People Arrive is what happens when enough of us share it.')
 
-# Dispatches with publication evidence in the canonical records (Dispatches 001–002).
+# Dispatches included in this bounded reading path; not the full live inventory.
+# Exact URLs/titles were opened in Chrome by the 2026-10-01 correction session.
 PUBLISHED_DISPATCHES = {'001', '002'}
+VERIFIED_POSTS = {
+    'https://thepeoplearrive.substack.com/p/dispatch-001-the-day-the-coupons': 'The Day the Coupons Died',
+    'https://thepeoplearrive.substack.com/p/dispatch-002-the-algorithm-knows': "The Algorithm Knows You're Tired",
+}
 
 # Per-page budget for local bytes a reader downloads (HTML + CSS + images + icons).
 LOCAL_BYTE_BUDGET = 80_000
@@ -314,10 +319,19 @@ class PublicStatusClaims(unittest.TestCase):
         numbers = set(re.findall(r'Dispatch (\d{3})', t))
         self.assertTrue(numbers <= PUBLISHED_DISPATCHES, numbers)
         self.assertEqual(t.count('Published'), len(PUBLISHED_DISPATCHES))
-        # Reading order follows Dispatch numbers mapped to chapters, not dates.
+        # The explicitly verified path contains 001 before 002.
         self.assertLess(t.index('Dispatch 001'), t.index('Dispatch 002'))
-        self.assertIn('Chapter 1: The Day the Coupons Died', t)
-        self.assertIn("Chapter 2: The Algorithm Knows You're Tired", t)
+        self.assertIn('The Day the Coupons Died', t)
+        self.assertIn("The Algorithm Knows You're Tired", t)
+
+    def test_reading_steps_have_the_verified_individual_destinations(self):
+        page = parse('start-reading/index.html')
+        for url in VERIFIED_POSTS:
+            self.assertEqual(len(page.find('a', href=url)), 1, url)
+        post_links = [a['href'] for a in page.find('a') if '/p/' in a.get('href', '')]
+        self.assertEqual(post_links, list(VERIFIED_POSTS))
+        self.assertIn('open the published Dispatches directly', page.visible_text())
+        self.assertNotIn('Chapter 1:', page.visible_text())
 
     def test_book_one_is_not_claimed_published(self):
         for rel in ALL_HTML:

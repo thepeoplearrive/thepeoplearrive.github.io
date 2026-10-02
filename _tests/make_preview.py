@@ -35,8 +35,13 @@ def relativize(html, depth):
 
 
 def main(out):
-    if os.path.exists(out):
-        shutil.rmtree(out)
+    # Never remove a caller-supplied directory, including a checkout or its parent.
+    out = os.path.realpath(out)
+    root = os.path.realpath(ROOT)
+    if os.path.commonpath([out, root]) == out:
+        raise ValueError('Preview destination must not be the checkout or its ancestor')
+    if os.path.lexists(out):
+        raise ValueError('Preview destination already exists; choose a new directory')
     for rel in PAGES:
         depth = rel.count('/')
         with open(os.path.join(ROOT, rel), encoding='utf-8') as f:

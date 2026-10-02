@@ -11,20 +11,26 @@ Run from the repository root.
 | Command | What it checks | Needs |
 |---|---|---|
 | `python3 _tests/test_site.py` | Routes, sitemap/robots, local assets, internal links and fragments, metadata, heading order, public-status claims, locked phrases, regressions | Python 3 (standard library) |
-| `node _tests/render_audit.mjs . <out-dir> / /start-reading/ /no-such-page` | Renders each page at 1366, 390 and 320 px, each at 100% and 200% text, plus 200% page zoom; horizontal overflow; headings that would break mid-word; keyboard focus order and focus-ring contrast; reduced motion; local page weight and requests; full-page screenshots. Exits 1 on a regression. External requests are blocked so results repeat offline. | Node 18+, Playwright with Chromium |
+| `node _tests/render_audit.mjs . <out-dir> / /start-reading/ /no-such-page` | Renders each page at 1366, 390 and 320 px, normal and 200% root-font scaling; checks every text element doubles, overflow and heading word breaks. Keyboard traversal runs at every view, including the reduced-viewport/DPR approximation of desktop page zoom. Checks outer-frame focus only, reduced motion and offline local bytes. Exits 1 on a regression. External requests are blocked. | Node 18+, Playwright with Chromium (or `BROWSER_EXECUTABLE_PATH` pointing to local Chrome) |
 | `python3 _tests/check_external.py` | One read-only GET per external destination. Reports `OK`, `BROKEN` (the destination answered 4xx/5xx) or `NETWORK-BLOCKED` (the check never reached it; not evidence of a broken link). | Network access to the destinations |
 | `python3 _tests/make_preview.py <out-dir>` | Builds a relative-path copy with a "review preview" banner for owner review. Never deployed. | Python 3 |
+| `python3 _tests/test_preview.py` | Rejects checkout/ancestor and existing-directory destinations without changing files; checks a new preview is usable. | Python 3 |
 
 None of these submit the signup form, send email, or contact any purchase system.
+Root-font scaling is not real browser text-only zoom. Reduced viewport/DPR is not
+actual browser page zoom. Neither checks the live cross-origin form or a real device.
+The preview helper refuses any existing output directory; choose a fresh path.
 
 ## Integration points
 
-**Direct Dispatch links (Start reading page).** Each reading step currently sends readers
-to the Substack publication, because no individual Dispatch URL has been opened and
-checked. To add one: open the post in a browser, confirm its title and number match the
-step, then link that step's heading or add a "Read Dispatch 00N" link, and record the
-check in the canonical production record. Add a step only for a Dispatch with publication
-evidence; `PUBLISHED_DISPATCHES` in `test_site.py` must be updated in the same change.
+**Direct Dispatch links (Start reading page).** The headings link to Dispatches 001 and
+002, opened in Chrome on 2026-10-01 New York / 2026-10-02 UTC. Titles and numbers match;
+each returned HTTP 200. These are the existing 2025 posts, not the current canonical
+manuscript or approval of a rewritten edition. Shared buttons open the publication home.
+Before adding another step, verify its live title/number/URL and its version/publication
+context. Record evidence in the canonical repository; update `PUBLISHED_DISPATCHES` and
+`VERIFIED_POSTS` in `test_site.py` together. The set describes this path, not the whole
+public inventory: Dispatch 003 and Signal 000 were also observed live in this session.
 
 **Approved artifacts (home page, Mot Snilloc section).** The site has no purchase links.
 Add a product destination only when all three exist: owner publication approval, a live

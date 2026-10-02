@@ -14,7 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Static checks
-        run: python3 _tests/test_site.py
+        run: |
+          python3 _tests/test_site.py
+          python3 _tests/test_preview.py
   rendered:
     runs-on: ubuntu-latest
     steps:

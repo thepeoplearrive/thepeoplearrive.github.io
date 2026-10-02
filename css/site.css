@@ -10,7 +10,7 @@ img { display:block; max-width:100%; height:auto; }
 h1, h2, h3 { line-height:1.13; letter-spacing:-.025em; overflow-wrap:break-word; }
 p { margin:0 0 1.25rem; }
 
-.skip { position:absolute; top:-5rem; left:1rem; z-index:10; padding:.6rem .85rem; background:#fff; color:var(--soil); }
+.skip { position:absolute; top:-5rem; left:1rem; max-width:calc(100% - 2rem); z-index:10; padding:.6rem .85rem; background:#fff; color:var(--soil); }
 .skip:focus { top:.5rem; }
 .skip:focus-visible { outline-color:var(--signal); }
 .shell { width:min(100% - 2rem,72rem); margin-inline:auto; }
@@ -26,13 +26,13 @@ p { margin:0 0 1.25rem; }
 
 /* Hero (home) and page hero (inner pages) */
 .hero, .page-hero { background:var(--blue); color:#fff; border-top:3px solid var(--signal); }
-.hero-grid { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(16rem,.8fr); align-items:center; gap:clamp(2rem,6vw,6rem); padding-block:clamp(3.5rem,8vw,7rem); }
+.hero-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,32rem),1fr)); align-items:center; gap:clamp(2rem,6vw,6rem); padding-block:clamp(3.5rem,8vw,7rem); }
 .page-hero .shell { padding-block:clamp(3rem,7vw,5.5rem); }
 .eyebrow { color:var(--signal); margin:0 0 1.1rem; }
-/* The cap keeps the longest H1 word ("protocol." is about 3.6em wide) on one line at 320 px with 200% text. */
-h1 { margin:0; font-size:min(clamp(2.4rem,1.6rem + 4vw,5.7rem), calc((100vw - 2rem) / 3.7)); max-width:12ch; }
+/* Relative sizes enlarge with reader text preferences; do not cap them by viewport. */
+h1 { margin:0; font-size:5rem; max-width:12ch; }
 .page-hero h1 { max-width:18ch; }
-.lede { max-width:36rem; margin:1.5rem 0 2rem; font-size:clamp(1.125rem,2vw,1.35rem); }
+.lede { max-width:36rem; margin:1.5rem 0 2rem; font-size:1.125rem; }
 .page-hero .lede { margin-bottom:0; }
 .page-hero .actions { margin-top:1.75rem; }
 .actions { display:flex; flex-wrap:wrap; align-items:center; gap:1rem 1.5rem; }
@@ -48,11 +48,10 @@ h1 { margin:0; font-size:min(clamp(2.4rem,1.6rem + 4vw,5.7rem), calc((100vw - 2r
 .section { padding-block:clamp(3.5rem,7vw,6rem); }
 .section + .section { border-top:1px solid var(--line); }
 .section-label { color:var(--label); margin:0 0 .75rem; }
-/* Caps keep the longest words ("Dispatches." 4.6em, "Algorithm" 4.2em) whole at 320 px with 200% text. */
-h2 { font-size:min(clamp(2rem,4vw,3.5rem), calc((100vw - 2rem) / 4.8)); margin:0 0 1.25rem; }
-h3 { font-size:min(1.5rem, calc((100vw - 4.75rem) / 4.5)); margin:0 0 .65rem; }
+h2 { font-size:3rem; margin:0 0 1.25rem; }
+h3 { font-size:1.5rem; margin:0 0 .65rem; }
 .intro { max-width:47rem; }
-.split { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(2rem,6vw,5rem); align-items:start; }
+.split { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,28rem),1fr)); gap:clamp(2rem,6vw,5rem); align-items:start; }
 .card { padding:clamp(1rem,4vw,2.5rem); background:#fff; border:1px solid var(--line); border-top:.35rem solid var(--clay); }
 .card p:last-child, .intro p:last-child { margin-bottom:0; }
 .note { font:1rem/1.6 Arial,Helvetica,sans-serif; color:#554c44; }
@@ -60,7 +59,7 @@ h3 { font-size:min(1.5rem, calc((100vw - 4.75rem) / 4.5)); margin:0 0 .65rem; }
 .mot .section-label { color:#395667; }
 .mot a:focus-visible { outline-color:var(--blue); }
 .mot p { max-width:47rem; }
-blockquote { margin:1.75rem 0; padding-left:1.25rem; border-left:.3rem solid var(--clay); font-size:clamp(1.2rem,2.2vw,1.5rem); font-style:italic; max-width:40rem; }
+blockquote { margin:1.75rem 0; padding-left:1.25rem; border-left:.3rem solid var(--clay); font-size:1.2rem; font-style:italic; max-width:40rem; }
 blockquote p { margin:0; }
 
 /* Status list: what is published and what is in development */
@@ -105,5 +104,15 @@ blockquote p { margin:0; }
   .hero-grid { padding-block:3rem; }
   .hero-art { width:min(75vw,19rem); margin:1rem 0 0; }
   .status-list div { grid-template-columns:1fr; }
+}
+/* Pixel breakpoint keeps the chosen type size stable as the root font is enlarged. */
+@media (max-width:600px) {
+  h1 { font-size:1.8rem; }
+  h2 { font-size:1.4rem; }
+  h3 { font-size:1.25rem; }
+  .card { padding:.5rem; }
+  .path li { padding-left:1.5rem; }
+  .path li::before { left:0; }
+  .path li::after { left:.5rem; }
 }
 @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
