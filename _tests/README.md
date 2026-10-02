@@ -15,6 +15,7 @@ Run from the repository root.
 | `python3 _tests/check_external.py` | One read-only GET per external destination. Reports `OK`, `BROKEN` (the destination answered 4xx/5xx) or `NETWORK-BLOCKED` (the check never reached it; not evidence of a broken link). | Network access to the destinations |
 | `python3 _tests/make_preview.py <out-dir>` | Builds a relative-path copy with a "review preview" banner for owner review. Never deployed. | Python 3 |
 | `python3 _tests/test_preview.py` | Rejects checkout/ancestor and existing-directory destinations without changing files; checks a new preview is usable. | Python 3 |
+| `python3 _tests/check_routing.py [--json out.json] [--strict]` | Live and read-only: follows every redirect hop for http/https apex, www and github.io (home, /start-reading/, sitemap, robots, a missing path, query strings); checks permanent hops ending at the same path on https://www, no downgrade or loop, the custom 404, sitemap XML and robots text, assets, Dispatch links and the embed. With `GITHUB_TOKEN` it also reads the Pages settings. Also runs as the "Routing check" workflow. A restricted network (a proxy answering 403) is not evidence about the site. | Network access; Python 3 |
 
 None of these submit the signup form, send email, or contact any purchase system.
 Root-font scaling is not real browser text-only zoom. Reduced viewport/DPR is not

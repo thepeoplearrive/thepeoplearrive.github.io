@@ -1,0 +1,32 @@
+name: Routing check
+
+# Live, read-only check of redirects, HTTPS and key routes on the public domain,
+# plus the GitHub Pages settings (read with pages: read). Changes nothing.
+# Runs on pull requests that touch it and on demand (Actions > Routing check > Run workflow).
+on:
+  pull_request:
+    paths:
+      - _tests/check_routing.py
+      - .github/workflows/routing-check.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: read
+
+jobs:
+  routing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check redirects, HTTPS and routes (report mode)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 _tests/check_routing.py --json routing-report.json | tee routing-report.txt
+          { echo '```'; cat routing-report.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: routing-report
+          path: routing-report.*
