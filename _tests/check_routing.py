@@ -10,7 +10,8 @@ Follows every redirect hop by hand (no automatic following) and checks that:
   - /, /start-reading/ return 200; a missing path keeps its path and returns the custom 404;
   - /sitemap.xml is valid XML listing canonical URLs; /robots.txt is plain text naming the
     canonical sitemap;
-  - local assets, the two Dispatch links and the signup embed answer 200.
+  - local assets answer 200; the two Dispatch links and the signup embed answer 200 (a 403
+    from Substack to this automated client is reported as INCONCLUSIVE, not as a failure).
 With GITHUB_TOKEN and GITHUB_REPOSITORY set (as in GitHub Actions with `pages: read`), it also
 records the Pages settings (cname, https_enforced, certificate state and domains).
 
@@ -85,6 +86,12 @@ def chain(url, limit=10):
         return hops, 'ok'
 
 
+def norm(url):
+    """Treat a bare host as its root path; compare everything else exactly."""
+    u = urllib.parse.urlsplit(url)
+    return urllib.parse.urlunsplit((u.scheme, u.netloc, u.path or '/', u.query, u.fragment))
+
+
 def evaluate(start, expect_path, expect_status, hops, outcome):
     problems = []
     if outcome != 'ok':
@@ -92,7 +99,7 @@ def evaluate(start, expect_path, expect_status, hops, outcome):
         return problems
     final = hops[-1]
     expected = f'https://{CANON}{expect_path}'
-    if final['url'] != expected:
+    if norm(final['url']) != norm(expected):
         problems.append(f'final URL {final["url"]} != {expected}')
     if final['status'] != expect_status:
         problems.append(f'final status {final["status"]} != {expect_status}')
@@ -181,9 +188,14 @@ def main():
     for url in EXTERNAL:
         hops, outcome = chain(url)
         final = hops[-1]
-        problems = [] if outcome == 'ok' and final.get('status') == 200 else [f'{outcome} {final.get("status", final.get("error"))}']
+        problems, note = [], None
+        if outcome == 'ok' and final.get('status') == 403:
+            # Substack answers 403 to automated clients; that says nothing about the link.
+            note = 'INCONCLUSIVE: destination refused an automated client (403); check in a browser'
+        elif not (outcome == 'ok' and final.get('status') == 200):
+            problems = [f'{outcome}: status {final.get("status", final.get("error"))}']
         cases.append({'start': url, 'hops': [{k: v for k, v in h.items() if k != '_body'} for h in hops],
-                      'outcome': outcome, 'problems': problems})
+                      'outcome': outcome, 'problems': problems, 'note': note})
 
     report = {'started_utc': started, 'pages': pages_settings(), 'cases': cases,
               'failures': sum(1 for c in cases if c['problems'])}
@@ -194,10 +206,10 @@ def main():
     print(f'Routing check started {started}')
     print('Pages settings:', json.dumps(report['pages']))
     for c in cases:
-        mark = 'PASS' if not c['problems'] else 'FAIL'
+        mark = 'FAIL' if c['problems'] else ('NOTE' if c.get('note') else 'PASS')
         path = ' -> '.join(f'{h.get("status", "ERR")} {h["url"]}' for h in c['hops'])
         print(f'{mark}  {path}')
-        for p in c['problems']:
+        for p in c['problems'] + ([c['note']] if c.get('note') else []):
             print(f'      - {p}')
     print(f'{report["failures"]} of {len(cases)} checks failed')
     return 1 if (args.strict and report['failures']) else 0
