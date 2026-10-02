@@ -104,7 +104,7 @@ async function inspect(page) {
 
 async function keyboardWalk(page, maxTabs = 40) {
   const stops = [];
-  await page.evaluate(() => { document.activeElement && document.activeElement.blur(); window.scrollTo(0, 0); });
+  await page.evaluate(() => { document.activeElement && document.activeElement.blur(); window.scrollTo({ top: 0, behavior: 'instant' }); });
   for (let i = 0; i < maxTabs; i++) {
     await page.keyboard.press('Tab');
     await page.waitForTimeout(40); // let focus handlers (embed focus ring) run
@@ -192,7 +192,7 @@ for (const p of pages) {
       if (zoom === 100 && vp.name !== 'mobile-320') entry.keyboard[vp.name] = await keyboardWalk(page);
       if (zoom === 100 && vp.name === 'desktop-1366') {
         // First focus stop (skip link) screenshot.
-        await page.evaluate(() => { document.activeElement && document.activeElement.blur(); window.scrollTo(0, 0); });
+        await page.evaluate(() => { document.activeElement && document.activeElement.blur(); window.scrollTo({ top: 0, behavior: 'instant' }); });
         await page.keyboard.press('Tab');
         await page.screenshot({ path: path.join(outDir, `${slug}--${key}-focus1.png`) });
       }
