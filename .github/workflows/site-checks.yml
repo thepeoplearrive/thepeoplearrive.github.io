@@ -1,0 +1,33 @@
+name: Site checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Static checks
+        run: python3 _tests/test_site.py
+  rendered:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright Chromium
+        run: npm install --no-save playwright@1.56.1 && npx playwright install --with-deps chromium
+      - name: Rendered audit
+        run: node _tests/render_audit.mjs . audit-out / /start-reading/ /no-such-page
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rendered-audit
+          path: audit-out
